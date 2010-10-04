@@ -13,7 +13,8 @@ verifyKey :: String         -- ^ The Akismet API key
           -> IO Bool
 verifyKey key blog = do
     response <- simpleHTTP $ formToRequest (Form POST uri [("key", key), ("blog", blog)])
-    body <- getResponseBody response
-    return (body == "valid")
+    either (error . ("verifyKey: " ++) . show)
+           (return . ("valid" ==) . rspBody)
+           response
   where
     Just uri = parseURI "http://rest.akismet.com/1.1/verify-key"
