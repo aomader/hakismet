@@ -1,0 +1,22 @@
+Name:                HAkismet
+Version:             0.1
+Synopsis:            Akismet spam protection library
+
+License:             BSD3
+Category:            Web
+
+Build-type:          Simple
+Cabal-version:       >= 1.8
+
+Library
+
+    GHC-Options: -Wall
+    HS-Source-Dirs: src
+
+    Build-depends:
+        base == 4.*,
+        network == 2.2.*,
+        HTTP == 4000.*
+
+    Exposed-Modules:
+        Network.Akismet
