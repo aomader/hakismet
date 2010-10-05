@@ -11,6 +11,8 @@ module Network.Akismet
     , defaultComment
     ) where
 
+import Control.Applicative
+import Data.Maybe
 import Network.Browser
 import Network.HTTP
 import Network.URI
@@ -108,5 +110,13 @@ createRequest key service comment = replaceHeader HdrUserAgent userAgent request
              , ("user_ip", cUserIp comment)
              , ("user_agent", cUserAgent comment)
              , ("comment_content", cContent comment)
-             ] ++ (cEnvVars comment)
+             ]
+             ++ catMaybes [ (,) "referrer"              <$> cReferrer       comment
+                          , (,) "permalink"             <$> cPermalink      comment
+                          , (,) "comment_type"          <$> cType           comment
+                          , (,) "comment_author"        <$> cAuthor         comment
+                          , (,) "comment_author_email"  <$> cAuthorEmail    comment
+                          , (,) "comment_author_url"    <$> cAuthorUrl      comment
+                          ]
+             ++ (cEnvVars comment)
     request = formToRequest $ Form POST uri values
