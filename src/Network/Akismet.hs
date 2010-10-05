@@ -15,7 +15,7 @@ import Network.Browser
 import Network.HTTP
 import Network.URI
 
--- | Comment represent the Content you want to check using Akismet.
+-- | Comment represents the Content you want to check using Akismet.
 -- For the exact meaning of each record selector check
 -- http://akismet.com/development/api/
 data Comment = Comment
@@ -35,17 +35,17 @@ data Comment = Comment
 userAgent :: String
 userAgent = "HAkismet/0.1"
 
--- | Create a Comment with sane defaults, but you still have to define
--- the by Akismet required values
+-- | Create a Comment with all required fields
 defaultComment :: String        -- ^ Blog
                -> String        -- ^ UserIp
+               -> String        -- ^ UserAgent
                -> String        -- ^ Content
                -> Comment
-defaultComment blog userip content =
+defaultComment blog userip useragent content =
     Comment { cBlog = blog
             , cUserIp = userip
             , cContent = content
-            , cUserAgent = userAgent
+            , cUserAgent = useragent
             , cReferrer = Nothing
             , cPermalink = Nothing
             , cType = Nothing
@@ -55,10 +55,10 @@ defaultComment blog userip content =
             , cEnvVars = []
             }
 
--- | verifyKey simply tries to verify your API key, it should be called before
+-- | Try to verify your API key, it should be called before
 -- every other akismet related operation.
-verifyKey :: String         -- ^ The Akismet API key
-          -> String         -- ^ The blog url
+verifyKey :: String         -- ^ Akismet API key
+          -> String         -- ^ Blog url
           -> IO Bool
 verifyKey key blog = do
     response <- simpleHTTP $ formToRequest (Form POST uri [("key", key), ("blog", blog)])
@@ -68,9 +68,9 @@ verifyKey key blog = do
   where
     Just uri = parseURI "http://rest.akismet.com/1.1/verify-key"
 
--- | Try to check a post
-checkComment :: String  -- ^ The Akismet API key
-             -> Comment -- ^ The post you want to check
+-- | Check a comment, in case of spam it returns True else False
+checkComment :: String  -- ^ Akismet API key
+             -> Comment -- ^ Comment
              -> IO Bool
 checkComment key comment = do
     response <- simpleHTTP $ createRequest key "comment-check" comment
@@ -79,16 +79,16 @@ checkComment key comment = do
            response
 
 -- | Submit a spam comment
-submitSpam :: String  -- ^ The Akismet API key
-           -> Comment -- ^ The spam post
+submitSpam :: String  -- ^ Akismet API key
+           -> Comment -- ^ Spam comment
            -> IO ()
 submitSpam key comment = do
     _ <- simpleHTTP $ createRequest key "submit-spam" comment
     return ()
 
 -- | Submit a false positive spam comment aka ham
-submitHam :: String  -- ^ The Akismet API key
-          -> Comment -- ^ The ham post
+submitHam :: String  -- ^ Akismet API key
+          -> Comment -- ^ Ham comment (false positive)
           -> IO ()
 submitHam key comment = do
     _ <- simpleHTTP $ createRequest key "submit-ham" comment
@@ -104,7 +104,7 @@ createRequest key service comment = formToRequest $ Form POST uri values
              , ("user_ip", cUserIp comment)
              , ("user_agent", cUserAgent comment)
              , ("comment_content", cContent comment)
-             ]
+             ] ++ (cEnvVars comment)
     uri = case parseURI ("http://" ++ key ++ ".rest.akismet.com/1.1/" ++ service) of
                Nothing -> error "createRequest: unable to create URI"
                Just s  -> s
