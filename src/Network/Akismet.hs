@@ -61,12 +61,13 @@ verifyKey :: String         -- ^ Akismet API key
           -> String         -- ^ Blog url
           -> IO Bool
 verifyKey key blog = do
-    response <- simpleHTTP $ formToRequest (Form POST uri [("key", key), ("blog", blog)])
+    response <- simpleHTTP $ replaceHeader HdrUserAgent userAgent request
     either (error . ("verifyKey: " ++) . show)
            (return . ("valid" ==) . rspBody)
            response
   where
     Just uri = parseURI "http://rest.akismet.com/1.1/verify-key"
+    request = formToRequest (Form POST uri [("key", key), ("blog", blog)])
 
 -- | Check a comment, in case of spam it returns True else False
 checkComment :: String  -- ^ Akismet API key
@@ -98,13 +99,14 @@ createRequest :: String
               -> String
               -> Comment
               -> Request_String
-createRequest key service comment = formToRequest $ Form POST uri values
+createRequest key service comment = replaceHeader HdrUserAgent userAgent request
   where
+    uri = case parseURI ("http://" ++ key ++ ".rest.akismet.com/1.1/" ++ service) of
+               Nothing -> error "createRequest: unable to create URI"
+               Just s  -> s
     values = [ ("blog", cBlog comment)
              , ("user_ip", cUserIp comment)
              , ("user_agent", cUserAgent comment)
              , ("comment_content", cContent comment)
              ] ++ (cEnvVars comment)
-    uri = case parseURI ("http://" ++ key ++ ".rest.akismet.com/1.1/" ++ service) of
-               Nothing -> error "createRequest: unable to create URI"
-               Just s  -> s
+    request = formToRequest $ Form POST uri values
