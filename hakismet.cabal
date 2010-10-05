@@ -1,4 +1,4 @@
-Name:                hakismet
+Name:                HAkismet
 Version:             0.1
 Synopsis:            Akismet spam protection library
 Description:         Network.Akismet offers an easy way to interact with the stop spam service Akismet.
