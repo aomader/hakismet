@@ -34,7 +34,7 @@ import Network.Browser
 import Network.HTTP
 import Network.URI
 
-import Paths_HAkismet
+import Paths_hakismet
 import Data.Version
 
 -- | Comment represents the Content you want to check using Akismet.
