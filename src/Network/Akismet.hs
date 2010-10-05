@@ -1,6 +1,14 @@
 module Network.Akismet
-    ( verifyKey
+    (
+      -- * Akismet API
+      verifyKey
     , checkComment
+    , submitSpam
+    , submitHam
+
+      -- * Data types
+    , Comment (..)
+    , defaultComment
     ) where
 
 import Network.Browser
@@ -24,21 +32,28 @@ data Comment = Comment
     , cEnvVars :: [(String, String)]
     }
 
+userAgent :: String
+userAgent = "HAkismet/0.1"
+
 -- | Create a Comment with sane defaults, but you still have to define
 -- the by Akismet required values
-defaultComment :: Comment
-defaultComment = Comment { cBlog = ""
-                         , cUserIp = ""
-                         , cUserAgent = ""
-                         , cContent = ""
-                         , cReferrer = Nothing
-                         , cPermalink = Nothing
-                         , cType = Nothing
-                         , cAuthor = Nothing
-                         , cAuthorEmail = Nothing
-                         , cAuthorUrl = Nothing
-                         , cEnvVars = []
-                         }
+defaultComment :: String        -- ^ Blog
+               -> String        -- ^ UserIp
+               -> String        -- ^ Content
+               -> Comment
+defaultComment blog userip content =
+    Comment { cBlog = blog
+            , cUserIp = userip
+            , cContent = content
+            , cUserAgent = userAgent
+            , cReferrer = Nothing
+            , cPermalink = Nothing
+            , cType = Nothing
+            , cAuthor = Nothing
+            , cAuthorEmail = Nothing
+            , cAuthorUrl = Nothing
+            , cEnvVars = []
+            }
 
 -- | verifyKey simply tries to verify your API key, it should be called before
 -- every other akismet related operation.
@@ -68,7 +83,7 @@ submitSpam :: String  -- ^ The Akismet API key
            -> Comment -- ^ The spam post
            -> IO ()
 submitSpam key comment = do
-    response <- simpleHTTP $ createRequest key "submit-spam" comment
+    _ <- simpleHTTP $ createRequest key "submit-spam" comment
     return ()
 
 -- | Submit a false positive spam comment aka ham
@@ -76,7 +91,7 @@ submitHam :: String  -- ^ The Akismet API key
           -> Comment -- ^ The ham post
           -> IO ()
 submitHam key comment = do
-    response <- simpleHTTP $ createRequest key "submit-ham" comment
+    _ <- simpleHTTP $ createRequest key "submit-ham" comment
     return ()
 
 createRequest :: String
