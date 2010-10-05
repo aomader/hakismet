@@ -13,9 +13,13 @@ module Network.Akismet
 
 import Control.Applicative
 import Data.Maybe
+import Data.List
 import Network.Browser
 import Network.HTTP
 import Network.URI
+
+import Paths_HAkismet
+import Data.Version
 
 -- | Comment represents the Content you want to check using Akismet.
 -- For the exact meaning of each record selector check
@@ -35,7 +39,7 @@ data Comment = Comment
     }
 
 userAgent :: String
-userAgent = "HAkismet/0.1"
+userAgent = "HAkismet/" ++ intercalate "." (map show $ versionBranch version)
 
 -- | Create a Comment with all required fields
 defaultComment :: String        -- ^ Blog
@@ -63,13 +67,13 @@ verifyKey :: String         -- ^ Akismet API key
           -> String         -- ^ Blog url
           -> IO Bool
 verifyKey key blog = do
-    response <- simpleHTTP $ replaceHeader HdrUserAgent userAgent request
+    response <- simpleHTTP $ replaceHeader HdrUserAgent userAgent req
     either (error . ("verifyKey: " ++) . show)
            (return . ("valid" ==) . rspBody)
            response
   where
     Just uri = parseURI "http://rest.akismet.com/1.1/verify-key"
-    request = formToRequest (Form POST uri [("key", key), ("blog", blog)])
+    req = formToRequest (Form POST uri [("key", key), ("blog", blog)])
 
 -- | Check a comment, in case of spam it returns True else False
 checkComment :: String  -- ^ Akismet API key
@@ -101,7 +105,7 @@ createRequest :: String
               -> String
               -> Comment
               -> Request_String
-createRequest key service comment = replaceHeader HdrUserAgent userAgent request
+createRequest key service comment = replaceHeader HdrUserAgent userAgent req
   where
     uri = case parseURI ("http://" ++ key ++ ".rest.akismet.com/1.1/" ++ service) of
                Nothing -> error "createRequest: unable to create URI"
@@ -119,4 +123,4 @@ createRequest key service comment = replaceHeader HdrUserAgent userAgent request
                           , (,) "comment_author_url"    <$> cAuthorUrl      comment
                           ]
              ++ (cEnvVars comment)
-    request = formToRequest $ Form POST uri values
+    req = formToRequest $ Form POST uri values

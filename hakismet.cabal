@@ -20,3 +20,6 @@ Library
 
     Exposed-Modules:
         Network.Akismet
+
+    Other-Modules:
+        Paths_HAkismet
