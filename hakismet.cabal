@@ -2,8 +2,13 @@ Name:                HAkismet
 Version:             0.1
 Synopsis:            Akismet spam protection library
 
-License:             BSD3
+License:             MIT
+License-File:        LICENSE
 Category:            Web
+Author:              Oliver Mader <b52@reaktor42.de>, Nils Schweinsberg <mail@n-sch.de>
+Maintainer:          Oliver Mader <b52@reaktor42.de>, Nils Schweinsberg <mail@n-sch.de>
+Homepage:            http://reaktor42.de/projects/hakismet
+Bug-Reports:         https://code.reaktor42.de/projects/hakismet
 
 Build-type:          Simple
 Cabal-version:       >= 1.8
