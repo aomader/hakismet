@@ -63,6 +63,22 @@ checkComment key comment = do
            (return . ("true" ==) . rspBody)
            response
 
+-- | Submit a spam comment
+submitSpam :: String  -- ^ The Akismet API key
+           -> Comment -- ^ The spam post
+           -> IO ()
+submitSpam key comment = do
+    response <- simpleHTTP $ createRequest key "submit-spam" comment
+    return ()
+
+-- | Submit a false positive spam comment aka ham
+submitHam :: String  -- ^ The Akismet API key
+          -> Comment -- ^ The ham post
+          -> IO ()
+submitHam key comment = do
+    response <- simpleHTTP $ createRequest key "submit-ham" comment
+    return ()
+
 createRequest :: String
               -> String
               -> Comment
