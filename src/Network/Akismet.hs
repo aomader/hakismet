@@ -91,7 +91,7 @@ submitSpam key comment = do
 
 -- | Submit a false positive spam comment aka ham
 submitHam :: String  -- ^ Akismet API key
-          -> Comment -- ^ Ham comment (false positive)
+          -> Comment -- ^ Ham comment
           -> IO ()
 submitHam key comment = do
     _ <- simpleHTTP $ createRequest key "submit-ham" comment
@@ -118,5 +118,5 @@ createRequest key service comment = replaceHeader HdrUserAgent userAgent request
                           , (,) "comment_author_email"  <$> cAuthorEmail    comment
                           , (,) "comment_author_url"    <$> cAuthorUrl      comment
                           ]
-             ++ (cEnvVars comment)
+             ++ cEnvVars comment
     request = formToRequest $ Form POST uri values
