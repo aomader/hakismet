@@ -1,3 +1,19 @@
+--------------------------------------------------------------------------------
+---- |
+---- Module       : Network.Akismet
+---- Copyright    : (c) 2010 Oliver Mader, Nils Schweinsberg
+---- License      : MIT (see LICENSE file)
+----
+---- Maintainer   : mail@n-sch.de
+---- Stability    : experimental
+---- Portability  : non-portable
+----
+---- Network.Akismet offers an easy way to interact with the stop spam service
+---- Akismet. For more information about Akismet and what each value means
+---- check http://www.akismet.com .
+----
+----------------------------------------------------------------------------------
+
 module Network.Akismet
     (
       -- * Akismet API
